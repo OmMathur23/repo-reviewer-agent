@@ -4,15 +4,15 @@ import tempfile
 def clone_repo(url:str)->str:
 
     if not url.startswith((
-        "https:/github.com/",
+        "https://github.com/",
         "git@github.com:"
     )):
-        raise ValueError(f"Only GitHub URLs are supported for now, got: {url}")
+        raise ValueError(f"Only GitHub URLs are supported for now, got: {url!r}")
 
     dest = tempfile.mkdtemp(prefix="repo-reviewer")
 
     result = subprocess.run(
-        ["git","clone","--depth1",url,dest],
+        ["git","clone","--depth","1",url,dest],
         capture_output=True,
         text= True,
         timeout = 60
