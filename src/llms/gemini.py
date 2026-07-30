@@ -1,16 +1,21 @@
-from google import genai
+from google import genai 
 from src.config import GEMINI_API_KEY, MODEL_NAME
 
 class GeminiLLM:
     def __init__(self):
         self.client = genai.Client(api_key=GEMINI_API_KEY)
 
-    def generate(self, prompt:str)->str:
+    def generate(self, messages:list[dict])->str:
+        prompt = ""
+        for message in messages:
+            role = message["role"].upper()
+            content = message["content"]
+            prompt += f"{role}:\n{content}\n\n"
         interaction = self.client.interactions.create(
             model = MODEL_NAME,
             input = prompt
         )
-    return interaction.output_text
+        return interaction.output_text
 
-    
+
     
