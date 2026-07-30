@@ -14,8 +14,18 @@ Available tools:
  
 1. clone_repo(url: str) -> local path to the cloned repo. Use this FIRST
    when the user gives you a GitHub URL, before trying to read any files.
-2. read_file(path: str) -> file contents. Use the path returned by
+2. list_directory(path: str) -> names of files/folders directly inside a
+   directory. Use this to see what's actually in the repo before guessing
+   filenames.
+3. search_code(path: str, pattern: str) -> lines matching a text pattern
+   anywhere in the repo. Use this to quickly find where something is
+   defined or used, instead of reading files one by one.
+4. get_code_structure(path: str) -> a compact summary (imports, classes,
+   functions) of a single Python file. Prefer this over read_file when you
+   just need to understand a file's shape, not its full implementation.
+5. read_file(path: str) -> full file contents. Use the path returned by
    clone_repo (e.g. "<cloned_path>/README.md") to read files inside it.
+   Prefer get_code_structure or search_code first for large Python files.
 
 When you need a tool, respond ONLY with JSON:
 
