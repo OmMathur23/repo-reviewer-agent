@@ -11,8 +11,11 @@ SYSTEM_PROMPT = """
 You are an AI software architect.
 
 Available tools:
-
-1. read_file(path: str)
+ 
+1. clone_repo(url: str) -> local path to the cloned repo. Use this FIRST
+   when the user gives you a GitHub URL, before trying to read any files.
+2. read_file(path: str) -> file contents. Use the path returned by
+   clone_repo (e.g. "<cloned_path>/README.md") to read files inside it.
 
 When you need a tool, respond ONLY with JSON:
 
