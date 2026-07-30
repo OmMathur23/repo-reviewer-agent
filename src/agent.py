@@ -1,8 +1,11 @@
 import json
+from pydantic import TypeAdapter, ValidationError
 
 from llms.gemini import GeminiLLM
 from tools import TOOLS
+from schema import ToolCall,FinalAnswer
 
+StepResult = TypeAdapter(ToolCall|FinalAnswer)
 
 SYSTEM_PROMPT = """
 You are an AI software architect.
@@ -53,24 +56,28 @@ class Agent:
 
         while True:
 
-            response = self.llm.generate(messages)
-            response = json.loads(response)
+            raw_response = self.llm.generate(messages)
+            try:
+                step = StepResult.validate_json(raw_response)
+            except ValidationError as e:
+                raise ValueError(
+                    f"LLM returned a response that doesn't match either "
+                    f"expected shape (ToolCall or FinalAnswer): {e}"
+                )from e
 
-            if response["type"] == "tool":
-
-                tool_name = response["tool"]
-
+            if isinstance(step,ToolCall):
+                tool_name = step.tool
                 if tool_name not in TOOLS:
                     raise ValueError(f"Unknown tool: {tool_name}")
 
                 tool = TOOLS[tool_name]
 
-                result = tool(**response["args"])
+                result = tool(**step.args)
 
                 messages.append(
                     {
                         "role": "assistant",
-                        "content": json.dumps(response),
+                        "content":  step.model_dump_json(),
                     }
                 )
 
@@ -83,5 +90,5 @@ class Agent:
 
                 continue
 
-            elif response["type"] == "final":
-                return response["answer"]
+            elif isinstance(step, FinalAnswer):
+                return step.answer
